@@ -5,13 +5,17 @@ import { RegistrationRespModel } from 'src/models/registration.resp.model';
 import { Repository } from 'typeorm';
 import { User } from './user';
 import * as bcrypt from 'bcrypt';
-
+import { JwtService } from '@nestjs/jwt';
+import { CurrentUser } from 'src/models/current.user';
 
 @Injectable()
 export class UsersService {
-  constructor(@InjectRepository(User) private user: Repository<User>) {}
+  constructor(@InjectRepository(User) private user: Repository<User>,
+  private jwtService:JwtService) {}
 
-  private async registrationValidation(regModel: RegistrationReqModel): Promise<string> {
+  private async registrationValidation(
+    regModel: RegistrationReqModel,
+  ): Promise<string> {
     if (!regModel.email) {
       return "Email can't be empty";
     }
@@ -57,14 +61,37 @@ export class UsersService {
     newUser.email = regModel.email;
     newUser.password = await this.getPasswordHash(regModel.password);
 
-     await this.user.insert(newUser);
+    await this.user.insert(newUser);
     result.successStatus = true;
     result.message = 'succeess';
     return result;
   }
 
-  async password(){
-      let user = await this.user.findOne({email:'naveen@gmail.com'});
-      return await bcrypt.compare('123@abcd',user.password);
+  public async validateUserCredentials(email: string, password: string):Promise<CurrentUser> {
+    let user = await this.user.findOne({ email: email });
+
+    if (user == null) {
+      return null;
+    }
+
+    const isValidPassword = await bcrypt.compare(password, user.password);
+    if (!isValidPassword) {
+      return null;
+    }
+
+    let currentUser = new CurrentUser();
+    currentUser.userId = user.userId;
+    currentUser.firstName = user.firstName;
+    currentUser.lastName = user.lastName;
+    currentUser.email = user.email;
+
+    return currentUser;
+  }
+
+  public async getJwtToken(user:CurrentUser): Promise<string>{
+    const payload = {
+     ...user
+    }
+    return this.jwtService.signAsync(payload);
   }
 }
