@@ -24,7 +24,10 @@
 
 ## Description
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+Source code for three articles in the NestJS JWT Auth Cookie Series:
+1. [User Registration](https://www.learmoreseekmore.com/2021/05/nestjs-jwt-auth-cookie-series-part-1-user-registration.html)
+2. [Generating Access Token](https://www.learmoreseekmore.com/2021/05/nestjs-jwt-auth-cookie-series-part-2-generating-access-token.html)
+3. [Refresh Token](https://www.learmoreseekmore.com/2021/05/nestjs-jwt-auth-cookie-series-part3-refresh-token.html)
 
 ## Installation
 
